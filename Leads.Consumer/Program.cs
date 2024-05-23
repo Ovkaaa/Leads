@@ -1,12 +1,17 @@
 using Leads.App.Interfaces;
 using Leads.Consumer.Consumers;
 using Leads.Consumer.Infrastructure.Models;
+using Leads.Infrastructure;
 using Leads.Infrastructure.Repositories;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
 
 var builder = Host.CreateApplicationBuilder(args);
 
 var rabbitMqSettings = builder.Configuration.GetSection("RabbitMqSettings").Get<RabbitMqSettings>();
+
+builder.Services.AddDbContext<LeadsDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddMassTransit(x =>
 {

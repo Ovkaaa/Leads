@@ -11,7 +11,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<LeadsDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("LeadsConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<ILeadRepository, LeadRepository>();
 builder.Services.AddMediatR((config) => config.RegisterServicesFromAssembly(typeof(CreateLeadCommand).Assembly));

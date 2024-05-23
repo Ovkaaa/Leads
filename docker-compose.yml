@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  leadsapi:
+    image: leadsapi
+    build:
+      context: .
+      dockerfile: Leads.API/Dockerfile
+    ports:
+      - "5000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=leadsdb;Database=leads;Username=postgres;Password=postgres
+      - RabbitMqSettings__Host=rabbitmq
+      - RabbitMqSettings__Username=guest
+      - RabbitMqSettings__Password=guest
+      - RabbitMqSettings__QueueName=leads_queue
+    depends_on:
+      - rabbitmq
+      - leadsdb
+
+  leadsconsumer:
+    image: leadsconsumer
+    build:
+      context: .
+      dockerfile: Leads.Consumer/Dockerfile
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=leadsdb;Database=leads;Username=postgres;Password=postgres
+      - RabbitMqSettings__Host=rabbitmq
+      - RabbitMqSettings__Username=guest
+      - RabbitMqSettings__Password=guest
+      - RabbitMqSettings__QueueName=leads_queue
+    depends_on:
+      - rabbitmq
+      - leadsdb
+
+  leadsdb:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=leads
+    ports:
+      - "5432:5432"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
